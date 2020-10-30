@@ -12,7 +12,7 @@ from models.graphcnn import GraphCNN
 
 criterion = nn.CrossEntropyLoss()
 
-def train(args, model, device, train_graphs, optimizer, epoch):
+def train(args, model, device, train_graphs, optimizer, epoch,scheduler):
     model.train()
 
     total_iters = args.iters_per_epoch
@@ -33,7 +33,8 @@ def train(args, model, device, train_graphs, optimizer, epoch):
         #backprop
         if optimizer is not None:
             optimizer.zero_grad()
-            loss.backward()         
+            loss.backward()
+            scheduler.step()
             optimizer.step()
         
 
@@ -138,9 +139,8 @@ def main():
 
 
     for epoch in range(1, args.epochs + 1):
-        scheduler.step()
 
-        avg_loss = train(args, model, device, train_graphs, optimizer, epoch)
+        avg_loss = train(args, model, device, train_graphs, optimizer, epoch,scheduler)
         acc_train, acc_test = test(args, model, device, train_graphs, test_graphs, epoch)
 
         if not args.filename == "":
